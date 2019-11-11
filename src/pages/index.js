@@ -7,18 +7,28 @@ import SEO from '../components/seo'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import Divider from '@material-ui/core/Divider'
-import ListSubheader from '@material-ui/core/ListSubheader'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import Collapse from '@material-ui/core/Collapse'
+import TextField from '@material-ui/core/TextField'
+import Fab from '@material-ui/core/Fab'
+import SaveIcon from '@material-ui/icons/Save'
+import { navigate } from 'gatsby'
+import Firebase from 'firebase'
 
-import StarIcon from '@material-ui/icons/Star'
-import InfoIcon from '@material-ui/icons/Info'
-import ExpandLess from '@material-ui/icons/ExpandLess'
-import ExpandMore from '@material-ui/icons/ExpandMore'
-import Done from '@material-ui/icons/Done'
+const firebaseConfig = {
+  apiKey: 'AIzaSyCQeeb45fA-WDU3f3BCnpzDRv4_3sjWdLk',
+  authDomain: 'catch-26e8b.firebaseapp.com',
+  databaseURL: 'https://catch-26e8b.firebaseio.com',
+  projectId: 'catch-26e8b',
+  storageBucket: 'catch-26e8b.appspot.com',
+  messagingSenderId: '929097755558',
+  appId: '1:929097755558:web:2e8898963d9afb5064bd67',
+  measurementId: 'G-XHZ6HDNH6M',
+}
+
+// Initialize Firebase
+if (!Firebase.apps.length) {
+  Firebase.initializeApp(firebaseConfig)
+  Firebase.analytics()
+}
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -28,26 +38,29 @@ const useStyles = makeStyles(theme => ({
   nested: {
     paddingLeft: theme.spacing(4),
   },
-}));
+}))
 
 const IndexPage = () => {
-
   const classes = useStyles()
-  const [features, setFeatures] = React.useState(true)
-  const [info, setInfo] = React.useState(true)
+  const [words, setWords] = React.useState('')
+  const [error, setError] = React.useState(false)
 
-  function handleClick(id) {
-    switch(id) {
-      case "features":
-        setFeatures(!features)
-        break;
-      case "info":
-        setInfo(!info)
-        break
-    }
+  function handleWords(e) {
+    setWords(e.target.value)
   }
 
-  return(
+  function saveWords() {
+    const id = Firebase.database()
+      .ref('games')
+      .push({
+        words,
+        play: false,
+        vocabulary: '',
+      }).key
+    navigate('/game/' + id)
+  }
+
+  return (
     <Layout>
       <SEO title="Home" />
       <Grid container spacing={3} justify="center">
@@ -57,69 +70,31 @@ const IndexPage = () => {
           </div>
         </Grid>
         <Grid item xs={8}>
-          <h1>Gatsby Material UI Starter</h1>
-          <h5>
-            A responsive, minimalist Gatsby starter based on the world's most
-            popular React UI framework.
-          </h5>
+          <h1>How to play this game!</h1>
+          <h5>Enter vocabulary in a fom and click next to play this game.</h5>
         </Grid>
       </Grid>
       <Divider />
-      <List
-        component="nav"
-        className={classes.root}
+      <TextField
+        id="outlined-multiline-static"
+        label="Vocabulary"
+        multiline
+        rows="4"
+        placeholder="Learn/Vocabulary/Very/Fun/..."
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        value={words}
+        onChange={handleWords}
+      />
+      <Fab
+        color="primary"
+        onClick={saveWords}
+        aria-label="add"
+        className={classes.fab}
       >
-      <ListItem id="features" button onClick={() => handleClick("features")}>
-        <ListItemIcon>
-          <StarIcon />
-        </ListItemIcon>
-        <ListItemText primary="Features" />
-        {features ? <ExpandLess /> : <ExpandMore />}
-      </ListItem>
-      <Collapse in={!features} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="Material UI Framework" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="Progressive Web App" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="SEO" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="Offline Support" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="Roboto Typeface (self hosted)" />
-          </ListItem>
-        </List>
-      </Collapse>
-      <ListItem button onClick={() => handleClick("info")}>
-        <ListItemIcon>
-          <InfoIcon />
-        </ListItemIcon>
-        <ListItemText primary="Info" />
-        {info ? <ExpandLess /> : <ExpandMore />}
-      </ListItem>
-      <Collapse in={!info} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="Based on Gatsby Default Starter" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon><Done /></ListItemIcon>
-            <ListItemText primary="Uses Gatsby Material UI Plugin" />
-          </ListItem>
-        </List>
-      </Collapse>
-    </List>
+        <SaveIcon />
+      </Fab>
     </Layout>
   )
 }
