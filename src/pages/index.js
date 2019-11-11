@@ -27,7 +27,6 @@ const firebaseConfig = {
 // Initialize Firebase
 if (!Firebase.apps.length) {
   Firebase.initializeApp(firebaseConfig)
-  Firebase.analytics()
 }
 
 const useStyles = makeStyles(theme => ({

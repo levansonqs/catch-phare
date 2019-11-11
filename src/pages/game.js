@@ -25,7 +25,6 @@ const firebaseConfig = {
 // Initialize Firebase
 if (!Firebase.apps.length) {
   Firebase.initializeApp(firebaseConfig)
-  Firebase.analytics()
 }
 
 function SecondPage({ id }) {
